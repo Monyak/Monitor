@@ -1,0 +1,42 @@
+.table {
+  display: table;
+}
+
+.row {
+  display: table-row;
+}
+
+.cell {
+  display: table-cell;
+}
+
+.cell1 {
+  width: 100px;
+  font-size: 15px;
+}
+
+.cell2 {
+  width: 200px;
+}
+
+.subcell {
+  display: inline-block;
+}
+
+.subcell1, .subcell2 {
+  width: 80px;
+}
+
+.separator {
+  width: 28px;
+  text-align: center;
+}
+
+.lastrow {
+  width: 304px;
+  display: block;
+}
+
+.sendbutton {
+  float:right;
+}
