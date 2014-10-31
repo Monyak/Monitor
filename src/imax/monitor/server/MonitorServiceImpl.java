@@ -26,7 +26,7 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
     
     
     private static List<Monitor> monitors;
-    private static Object mutex = new Object();
+    protected static Object mutex = new Object();
 
     public String addMonitor(Monitor mon, String code) {
         try {
@@ -64,7 +64,7 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
         return monitors;
     }
     
-    private static void initMonitors() {
+    protected static void initMonitors() {
         DatastoreService datastore = DatastoreServiceFactory
                 .getDatastoreService();
         

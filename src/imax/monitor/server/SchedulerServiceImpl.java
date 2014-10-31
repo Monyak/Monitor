@@ -35,6 +35,14 @@ public class SchedulerServiceImpl extends MonitorServiceImpl {
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+	    
+	    String type = request.getParameter("refresh");
+	    if (type != null && !type.isEmpty()) {
+	        log("Refreshing monitors");
+	        synchronized (mutex) {
+                initMonitors();
+            }
+	    }
 		log("Starting checks");
 		List<Monitor> monitors = getMonitors();
 		HashMap<Integer, Map<String, List<Monitor>>> ids = new HashMap<>();
@@ -65,7 +73,7 @@ public class SchedulerServiceImpl extends MonitorServiceImpl {
 		        seats = api.getAvailableSeats(entry.getKey());
 		    } catch (IllegalStateException e) {
 		        // todo remove from checks
-		        log("Id " + entry.getKey() + " is not working", e);
+		        log("Id " + entry.getKey() + " is not working");
 		        continue;
 		    } catch (IOException e) {
 		        log("Error while fetching data for " + entry.getKey(), e);

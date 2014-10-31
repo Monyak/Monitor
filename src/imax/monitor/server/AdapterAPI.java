@@ -34,8 +34,14 @@ public final class AdapterAPI {
         return extractSeats(json, id, time);
     }
 
-    private List<Seat> extractSeats(String json, int id, long time) {
-        JsonObject root = new JsonParser().parse(json).getAsJsonObject();
+    private List<Seat> extractSeats(String json, int id, long time) throws IOException {
+        JsonObject root = null;
+        try {
+            root = new JsonParser().parse(json).getAsJsonObject();
+        } catch (Exception e) {
+            throw new IOException("Cannot parse json:\n"
+                    + json.substring(0, Math.min(json.length(), 800)) + "...");
+        }
         if (root.get("code").getAsInt() != 1) {
             throw new IllegalStateException("Wrong result status:" + root.get("message").getAsString());
         }
@@ -51,7 +57,8 @@ public final class AdapterAPI {
             }
             return list;
         } catch (NullPointerException e) {
-            throw new IllegalStateException("Cannot parse json:\n" + json.substring(0, 800) + "...");
+            throw new IOException("Cannot parse json:\n"
+                    + json.substring(0, Math.min(json.length(), 800)) + "...");
         }
     }
 

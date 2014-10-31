@@ -3,3 +3,4 @@ war/WEB-INF/classes/*
 war/WEB-INF/deploy/*
 war/imaxmonitor/*
 .settings/*
+.gwt/.gwt-log
