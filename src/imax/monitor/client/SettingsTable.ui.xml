@@ -7,6 +7,13 @@
 	<g:HTMLPanel>
 	<g:HTMLPanel styleName="table">
         <g:HTMLPanel styleName="row">
+            <g:Label title="monitor type" styleName="cell cell1">Type</g:Label>
+            <g:HTMLPanel styleName="cell cell2">
+                <g:RadioButton name="type" checked="true" styleName="subcell subcell1" ui:field="seatsType" text="Seats"/>
+                <g:RadioButton name="type" styleName="subcell subcell2" ui:field="movieType" text="Movie"/>
+            </g:HTMLPanel>
+        </g:HTMLPanel>
+        <g:HTMLPanel styleName="row">
             <g:Label title="separated by comma" styleName="cell cell1">Ids</g:Label>
             <g:TextBox styleName="cell cell2" ui:field="ids"/>
         </g:HTMLPanel>
@@ -32,7 +39,7 @@
         </g:HTMLPanel>
         <g:HTMLPanel styleName="row">
             <g:Label title="separated by comma" styleName="cell cell1">Code</g:Label>
-            <g:TextBox styleName="cell cell2" ui:field="code"/>
+            <g:PasswordTextBox styleName="cell cell2" ui:field="code"/>
         </g:HTMLPanel>
         
 	</g:HTMLPanel>

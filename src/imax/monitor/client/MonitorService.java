@@ -1,6 +1,6 @@
 package imax.monitor.client;
 
-import imax.monitor.shared.Monitor;
+import imax.monitor.shared.IMonitor;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -10,5 +10,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("monitor")
 public interface MonitorService extends RemoteService {
-    String addMonitor(Monitor entity, String code);
+    String addMonitor(IMonitor entity, String code);
 }

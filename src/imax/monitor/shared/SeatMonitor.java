@@ -3,7 +3,7 @@ package imax.monitor.shared;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Monitor implements Serializable {
+public class SeatMonitor implements Serializable, IMonitor {
   
     private static final long serialVersionUID = -2913628940087205755L;
     
@@ -13,11 +13,11 @@ public class Monitor implements Serializable {
     private int[] seats; // same
     private String email; // email to notify
     
-    public Monitor() {
+    public SeatMonitor() {
         
     }
     
-    public Monitor(int[] ids, int[] rows, int[] seats, String email) {
+    public SeatMonitor(int[] ids, int[] rows, int[] seats, String email) {
         if (ids == null || ids.length == 0)
             throw new IllegalArgumentException("Incorrect ids");
         if (rows == null || rows.length != 2)

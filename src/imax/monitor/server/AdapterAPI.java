@@ -17,7 +17,8 @@ import com.google.gson.JsonParser;
 public final class AdapterAPI {
     
     private static final String URL = "https://cabinet.planeta-kino.com.ua/hall-scheme/?theater=imax-kiev&showtime={id}sector=&r-id={time}";
-
+    private static final String MOVIE_URL = "http://planeta-kino.com.ua/ua/showtimes/xml/";
+    
     private static final int FREE_STATUS = 1;
     
     public AdapterAPI() {
@@ -60,6 +61,10 @@ public final class AdapterAPI {
             throw new IOException("Cannot parse json:\n"
                     + json.substring(0, Math.min(json.length(), 800)) + "...");
         }
+    }
+    
+    public String extractMovies() throws IOException {
+        return requestHttp(MOVIE_URL);
     }
 
     private String requestHttp(String urlInput) throws IOException {

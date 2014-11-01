@@ -1,7 +1,9 @@
 package imax.monitor.server;
 
 import imax.monitor.client.MonitorService;
-import imax.monitor.shared.Monitor;
+import imax.monitor.shared.IMonitor;
+import imax.monitor.shared.MovieMonitor;
+import imax.monitor.shared.SeatMonitor;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -23,29 +25,38 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
 
     private final static String SECRET_CODE = "47a9e8477d88a1d789562e9232fcee74";
     private final static String ALTER_CODE = "e41c0e2e5fa9832f3ba66013129b9096";
-    
-    
-    private static List<Monitor> monitors;
+
+    private final static String TYPE_SEAT = "seat";
+    private final static String TYPE_MOVIE = "movie";
+
+    private static List<SeatMonitor> monitors;
+    private static List<MovieMonitor> movieMonitors;
     protected static Object mutex = new Object();
 
-    public String addMonitor(Monitor mon, String code) {
+    public String addMonitor(IMonitor mon, String code) {
         try {
             if (!isCorrectCode(code)) {
                 return "Incorrect access code";
             }
-            getMonitors().add(mon);
             
             DatastoreService datastore = DatastoreServiceFactory
                     .getDatastoreService();
             Entity ent = new Entity("Monitors");
-            ent.setProperty("ids", int2str(mon.getIds()));
-            ent.setProperty("rows", int2str(mon.getRows()));
-            ent.setProperty("seats", int2str(mon.getSeats()));
+            if (mon instanceof SeatMonitor) {
+                SeatMonitor m = (SeatMonitor)mon;
+                ent.setProperty("ids", int2str(m.getIds()));
+                ent.setProperty("rows", int2str(m.getRows()));
+                ent.setProperty("seats", int2str(m.getSeats()));
+                ent.setProperty("type", TYPE_SEAT);
+                getMonitors().add(m);
+            } else {
+                MovieMonitor m = (MovieMonitor)mon;
+                ent.setProperty("ids", m.getMovieId() + "");
+                ent.setProperty("type", TYPE_MOVIE);
+                getMovieMonitors().add(m);
+            }
             ent.setProperty("email", mon.getEmail());
             datastore.put(ent);
-            synchronized (mutex) {
-                initMonitors();
-            }
             log("New monitor added:\n" + mon);
             return "Monitor has been added successfully";
         } catch (Exception e) {
@@ -54,7 +65,7 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
         }
     }
     
-    protected synchronized static List<Monitor> getMonitors() {
+    protected synchronized static List<SeatMonitor> getMonitors() {
         if (monitors == null) {
             synchronized (mutex) {
                 if (monitors == null)
@@ -62,6 +73,16 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
             }
         }
         return monitors;
+    }
+    
+    protected synchronized static List<MovieMonitor> getMovieMonitors() {
+        if (movieMonitors == null) {
+            synchronized (mutex) {
+                if (movieMonitors == null)
+                    initMonitors();
+            }
+        }
+        return movieMonitors;
     }
     
     protected static void initMonitors() {
@@ -72,13 +93,19 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
         
         List<Entity> monitorsEnt = datastore.prepare(query)
                 .asList(FetchOptions.Builder.withDefaults());
-        
-        monitors = new ArrayList<Monitor>();
+
+        monitors = new ArrayList<SeatMonitor>();
+        movieMonitors = new ArrayList<MovieMonitor>();
         for (Entity ent : monitorsEnt) {
-            monitors.add(new Monitor(str2int(ent.getProperty("ids").toString()), 
-                    str2int(ent.getProperty("rows").toString()), 
-                    str2int(ent.getProperty("seats").toString()), 
-                    ent.getProperty("email").toString()));
+            if (!TYPE_MOVIE.equals(ent.getProperty("type"))) {
+                monitors.add(new SeatMonitor(str2int(ent.getProperty("ids").toString()), 
+                        str2int(ent.getProperty("rows").toString()), 
+                        str2int(ent.getProperty("seats").toString()), 
+                        ent.getProperty("email").toString()));
+            } else {
+                movieMonitors.add(new MovieMonitor(Integer.parseInt(ent.getProperty("ids").toString()), 
+                        ent.getProperty("email").toString()));
+            }
         }
     }
     

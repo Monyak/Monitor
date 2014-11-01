@@ -1,6 +1,8 @@
 package imax.monitor.client;
 
-import imax.monitor.shared.Monitor;
+import imax.monitor.shared.IMonitor;
+import imax.monitor.shared.MovieMonitor;
+import imax.monitor.shared.SeatMonitor;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -11,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -22,6 +25,12 @@ public class SettingsTable extends Composite {
 
     interface SettingsTableUiBinder extends UiBinder<Widget, SettingsTable> {
     }
+    
+    @UiField
+    RadioButton seatsType;
+    
+    @UiField
+    RadioButton movieType;
     
     @UiField
     TextBox ids;
@@ -53,37 +62,52 @@ public class SettingsTable extends Composite {
     
     @UiHandler("send")
     public void onSendClick(ClickEvent e) {
-        
-        int[] id;
-        try {
-            String[] idStr = ids.getText().split(",");
-            id = new int[idStr.length];
-            
-            for (int i = 0; i < idStr.length; i++) {
-                id[i] = Integer.valueOf(idStr[i].trim());
+        IMonitor entity = null;
+        if (seatsType.getValue()) {
+            int[] id;
+            try {
+                String[] idStr = ids.getText().split(",");
+                id = new int[idStr.length];
+                
+                for (int i = 0; i < idStr.length; i++) {
+                    id[i] = Integer.valueOf(idStr[i].trim());
+                }
+            } catch (Exception ex) {
+                Window.alert("Cannot parse ids");
+                return;
             }
-        } catch (Exception ex) {
-            Window.alert("Cannot parse ids");
-            return;
-        }
-        
-        int[] rows = new int[2];
-        int[] seats = new int[2];
-        try {
-            rows[0] = Integer.valueOf(rowsFrom.getText().trim());
-            rows[1] = Integer.valueOf(rowsTo.getText().trim());
             
-            seats[0] = Integer.valueOf(seatsFrom.getText().trim());
-            seats[1] = Integer.valueOf(seatsTo.getText().trim());
-        } catch (Exception ex) {
-            Window.alert("Cannot parse rows or seats");
-            return;
+            int[] rows = new int[2];
+            int[] seats = new int[2];
+            try {
+                rows[0] = Integer.valueOf(rowsFrom.getText().trim());
+                rows[1] = Integer.valueOf(rowsTo.getText().trim());
+                
+                seats[0] = Integer.valueOf(seatsFrom.getText().trim());
+                seats[1] = Integer.valueOf(seatsTo.getText().trim());
+            } catch (Exception ex) {
+                Window.alert("Cannot parse rows or seats");
+                return;
+            }
+            if (email.getText().trim().isEmpty() || !email.getText().contains("@")) {
+                Window.alert("Invalid email");
+                return;
+            }
+            entity = new SeatMonitor(id, rows, seats, email.getText().trim());
+        } else {
+            int id;
+            try {
+                id = Integer.valueOf(ids.getText());
+            } catch (Exception ex) {
+                Window.alert("Cannot parse id");
+                return;
+            }
+            if (email.getText().trim().isEmpty() || !email.getText().contains("@")) {
+                Window.alert("Invalid email");
+                return;
+            }
+            entity = new MovieMonitor(id, email.getText().trim());
         }
-        if (email.getText().trim().isEmpty() || !email.getText().contains("@")) {
-            Window.alert("Invalid email");
-            return;
-        }
-        Monitor entity = new Monitor(id, rows, seats, email.getText().trim());
         monitorService.addMonitor(entity, code.getText(), new AsyncCallback<String>() {
             
             @Override
