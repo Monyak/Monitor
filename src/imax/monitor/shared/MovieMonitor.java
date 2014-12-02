@@ -7,23 +7,25 @@ public class MovieMonitor implements Serializable, IMonitor {
     private static final long serialVersionUID = -7066373004107386296L;
     
     
-    private int movieId;
+    private String movieId;
+    private String date;
     private String email;
     
     public MovieMonitor() {
         
     }
     
-    public MovieMonitor(int id, String mail) {
+    public MovieMonitor(String id, String date, String mail) {
         this.movieId = id;
+        this.date = date;
         this.email = mail;
     }
 
-    public int getMovieId() {
+    public String getMovieId() {
         return movieId;
     }
 
-    public void setMovieId(int movieId) {
+    public void setMovieId(String movieId) {
         this.movieId = movieId;
     }
 
@@ -40,7 +42,7 @@ public class MovieMonitor implements Serializable, IMonitor {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((email == null) ? 0 : email.hashCode());
-        result = prime * result + movieId;
+        result = prime * result + movieId.hashCode();
         return result;
     }
 
@@ -66,6 +68,14 @@ public class MovieMonitor implements Serializable, IMonitor {
     @Override
     public String toString() {
         return "MovieMonitor [movieId=" + movieId + ", email=" + email + "]";
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
     
     

@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.xpath.XPathExpressionException;
 
 
 public class SchedulerServiceImpl extends MonitorServiceImpl {
@@ -137,19 +139,27 @@ public class SchedulerServiceImpl extends MonitorServiceImpl {
 	    log("Checking movie monitors");
 	    List<MovieMonitor> monitors = getMovieMonitors();
 	    log("Got " + monitors.size() + " monitors");
-	    String movies;
+	    Map<String, Set<String>> dates = new HashMap<>();
 	    try {
-	        movies = api.extractMovies();
+	        for (MovieMonitor m : monitors) {
+	            if (!dates.containsKey(m.getMovieId())) {
+	                dates.put(m.getMovieId(), api.extractMovies(m.getMovieId()));
+	            }
+	        }
 	    } catch (IOException e) {
 	        log("Error while fetching movie schedule", e);
 	        return;
-	    }
+	    } catch (XPathExpressionException e) {
+	        log("Error while fetching movie schedule", e);
+            return;
+        }
 	    for (MovieMonitor m : monitors) {
-	        if (!movieCache.contains(m) && movies.contains("movie-id=\"" + m.getMovieId() + "\"")) {
+	        if (!movieCache.contains(m) && dates.containsKey(m.getMovieId())
+	                && dates.get(m.getMovieId()).contains(m.getDate())) {
 	            log("Sending email to " + m.getEmail());
 	            movieCache.add(m);
 	            StringBuilder str = new StringBuilder();
-	            str.append("Movie is now available in schedule.\r\n");
+	            str.append("Movie \"" + m.getMovieId() + "\" is now available in schedule for " + m.getDate() + ".\r\n");
 	            str.append("http://planeta-kino.com.ua/showtimes/");
 	            try {
                     mailer.sendMail(m.getEmail(), m.getEmail(), 

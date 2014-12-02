@@ -7,7 +7,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.xml.xpath.XPathExpressionException;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.XML;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -63,8 +72,35 @@ public final class AdapterAPI {
         }
     }
     
-    public String extractMovies() throws IOException {
-        return requestHttp(MOVIE_URL);
+    public Set<String> extractMovies(String name) throws IOException, XPathExpressionException {
+        JSONObject json = XML.toJSONObject(requestHttp(MOVIE_URL));
+        Set<String> result = new HashSet<String>();
+        try {
+            List<Integer> ids = new ArrayList<>();
+            JSONArray movies = json.getJSONObject("planeta-kino").getJSONObject("movies").getJSONArray("movie");
+            for (int i = 0; i < movies.length(); i++) {
+                if (movies.getJSONObject(i).getString("url").contains(name))
+                    ids.add(movies.getJSONObject(i).getInt("id"));
+            }
+            JSONArray showtimes = json.getJSONObject("planeta-kino").getJSONObject("showtimes").getJSONArray("day");
+            for (int id : ids) {
+                for (int i = 0; i < showtimes.length(); i++) {
+                    JSONObject day = showtimes.getJSONObject(i);
+                    JSONArray shows = day.getJSONArray("show");
+                    for (int j = 0; j < shows.length(); j++) {
+                        if (shows.getJSONObject(j).getInt("movie-id") == id) {
+                            result.add(day.getString("date"));
+                            break;
+                        }
+                    }
+                }  
+            }
+        } catch (JSONException | NullPointerException e) {
+            throw new IOException("Invalid json:\n" + json.toString(4), e);
+        } 
+        //System.out.println(jsonPrettyPrintString);
+        //String result = xpath.evaluate("/planeta-kino/movies/movie[contains(@url, '" + name + "')]", xml);
+        return result;
     }
 
     private String requestHttp(String urlInput) throws IOException {
@@ -90,7 +126,7 @@ public final class AdapterAPI {
     }
 
     // test
-    public static void main(String[] args) throws IOException {
-        System.out.println(new AdapterAPI().getAvailableSeats(19414)); //$NON-NLS-1$
+    public static void main(String[] args) throws IOException, XPathExpressionException {
+        System.out.println(new AdapterAPI().extractMovies("hobbit")); //$NON-NLS-1$
     }
 }

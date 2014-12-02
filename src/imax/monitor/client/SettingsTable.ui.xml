@@ -17,7 +17,7 @@
             <g:Label title="separated by comma" styleName="cell cell1">Ids</g:Label>
             <g:TextBox styleName="cell cell2" ui:field="ids"/>
         </g:HTMLPanel>
-        <g:HTMLPanel styleName="row">
+        <g:HTMLPanel styleName="row" ui:field="rowPanel">
             <g:Label title="separated by comma" styleName="cell cell1">Rows</g:Label>
             <g:HTMLPanel styleName="cell cell2">
                 <g:TextBox styleName="subcell subcell1" ui:field="rowsFrom"/>
@@ -25,13 +25,17 @@
                 <g:TextBox styleName="subcell subcell2" ui:field="rowsTo"/>
             </g:HTMLPanel>
         </g:HTMLPanel>
-        <g:HTMLPanel styleName="row">
+        <g:HTMLPanel styleName="row" ui:field="cellPanel">
             <g:Label title="separated by comma" styleName="cell cell1">Seats</g:Label>
             <g:HTMLPanel styleName="cell cell2">
                 <g:TextBox styleName="subcell subcell1" ui:field="seatsFrom"/>
                 <g:HTML text="—" styleName="subcell separator"></g:HTML>
                 <g:TextBox styleName="subcell subcell2" ui:field="seatsTo"/>
             </g:HTMLPanel>
+        </g:HTMLPanel>
+        <g:HTMLPanel styleName="row" ui:field="datePanel">
+            <g:Label title="separated by comma" styleName="cell cell1">Date</g:Label>
+            <g:TextBox styleName="cell cell2" ui:field="date"/>
         </g:HTMLPanel>
         <g:HTMLPanel styleName="row">
             <g:Label title="separated by comma" styleName="cell cell1">E-mail</g:Label>

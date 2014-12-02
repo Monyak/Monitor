@@ -6,6 +6,7 @@ import imax.monitor.shared.SeatMonitor;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -13,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -56,8 +58,27 @@ public class SettingsTable extends Composite {
     @UiField
     Button send;
     
+    @UiField
+    TextBox date;
+    
+    @UiField
+    HTMLPanel rowPanel;
+    
+    @UiField
+    HTMLPanel cellPanel;
+    
+    @UiField
+    HTMLPanel datePanel;
+    
     public SettingsTable() {
         initWidget(uiBinder.createAndBindUi(this));
+    }
+    
+    @UiHandler({"seatsType","movieType"})
+    public void onChange(ValueChangeEvent<Boolean> e) {
+        rowPanel.setVisible(seatsType.getValue());
+        cellPanel.setVisible(seatsType.getValue());
+        datePanel.setVisible(movieType.getValue());
     }
     
     @UiHandler("send")
@@ -95,9 +116,9 @@ public class SettingsTable extends Composite {
             }
             entity = new SeatMonitor(id, rows, seats, email.getText().trim());
         } else {
-            int id;
+            String id;
             try {
-                id = Integer.valueOf(ids.getText());
+                id = ids.getText();
             } catch (Exception ex) {
                 Window.alert("Cannot parse id");
                 return;
@@ -106,7 +127,11 @@ public class SettingsTable extends Composite {
                 Window.alert("Invalid email");
                 return;
             }
-            entity = new MovieMonitor(id, email.getText().trim());
+            if (date.getText().trim().isEmpty()) {
+                Window.alert("Invalid date");
+                return;
+            }
+            entity = new MovieMonitor(id, date.getText().trim(), email.getText().trim());
         }
         monitorService.addMonitor(entity, code.getText(), new AsyncCallback<String>() {
             

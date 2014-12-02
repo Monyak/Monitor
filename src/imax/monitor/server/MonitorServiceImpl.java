@@ -53,6 +53,7 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
                 MovieMonitor m = (MovieMonitor)mon;
                 ent.setProperty("ids", m.getMovieId() + "");
                 ent.setProperty("type", TYPE_MOVIE);
+                ent.setProperty("date", m.getDate());
                 getMovieMonitors().add(m);
             }
             ent.setProperty("email", mon.getEmail());
@@ -103,7 +104,8 @@ public class MonitorServiceImpl extends RemoteServiceServlet implements
                         str2int(ent.getProperty("seats").toString()), 
                         ent.getProperty("email").toString()));
             } else {
-                movieMonitors.add(new MovieMonitor(Integer.parseInt(ent.getProperty("ids").toString()), 
+                movieMonitors.add(new MovieMonitor(ent.getProperty("ids").toString(), 
+                        ent.getProperty("date").toString(),
                         ent.getProperty("email").toString()));
             }
         }
