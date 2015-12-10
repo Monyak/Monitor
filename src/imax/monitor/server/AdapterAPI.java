@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -25,8 +27,9 @@ import com.google.gson.JsonParser;
 
 public final class AdapterAPI {
     
-    private static final String URL = "https://cabinet.planeta-kino.com.ua/hall-scheme/?theater=imax-kiev&showtime={id}sector=&r-id={time}";
+    private static final String URL = "https://cabinet.planetakino.ua/Hall/HallScheme?showtimeId={id}";
     private static final String MOVIE_URL = "http://planeta-kino.com.ua/ua/showtimes/xml/";
+    private static final Pattern regex = Pattern.compile("<div id=\"seatInfo.*?exp-data-row=\"(\\d*)\".*?exp-data-col=\"(\\d*)\".*?</div>");
     
     private static final int FREE_STATUS = 1;
     
@@ -44,7 +47,7 @@ public final class AdapterAPI {
         return extractSeats(json, id, time);
     }
 
-    private List<Seat> extractSeats(String json, int id, long time) throws IOException {
+    /*private List<Seat> extractSeats(String json, int id, long time) throws IOException {
         JsonObject root = null;
         try {
             root = new JsonParser().parse(json).getAsJsonObject();
@@ -69,6 +72,23 @@ public final class AdapterAPI {
         } catch (NullPointerException e) {
             throw new IOException("Cannot parse json:\n"
                     + json.substring(0, Math.min(json.length(), 800)) + "...");
+        }
+    }*/
+    
+    private List<Seat> extractSeats(String html, int id, long time) throws IOException {
+
+        try {
+            Matcher match = regex.matcher(html);
+            List<Seat> list = new ArrayList<Seat>();
+            while(match.find()) {
+            	int row = Integer.parseInt(match.group(1));
+            	int col = Integer.parseInt(match.group(2));
+            	list.add(new Seat(id, row, col, time));
+            }
+            return list;
+        } catch (NullPointerException e) {
+            throw new IOException("Cannot parse json:\n"
+                    + html.substring(0, Math.min(html.length(), 800)) + "...");
         }
     }
     
