@@ -5,6 +5,7 @@ import imax.monitor.shared.SeatMonitor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class SchedulerServiceImpl extends MonitorServiceImpl {
     
     private static final int CACHE_CLEAR = 2; // 2 hours;
 
-    private static HashSet<Seat> alarmed = new HashSet<>();
+    private static HashSet<List> alarmed = new HashSet<>();
     private static long lastCheck;
     private static HashSet<MovieMonitor> movieCache = new HashSet<>();
 	
@@ -103,10 +104,10 @@ public class SchedulerServiceImpl extends MonitorServiceImpl {
                                 availForUser.put(entry.getKey(), new ArrayList<Seat>());
                             }
                             availForUser.get(entry.getKey()).add(s);
-                            if (!alarmed.contains(s)) {
+                            if (!alarmed.contains(Arrays.asList(s, email))) {
                                 emails.put(email, true);
                                 synchronized (alarmed) {
-                                    alarmed.add(s);
+                                    alarmed.add(Arrays.asList(s, email));
                                 }
                             }
                         }
@@ -194,9 +195,9 @@ public class SchedulerServiceImpl extends MonitorServiceImpl {
     	    if (current - lastCheck > CACHE_CLEAR * 60 * 60 * 1000) {
     	        log("Clearing cache, before: " + alarmed.size());
     	        lastCheck = new Date().getTime();
-    	        Iterator<Seat> it = alarmed.iterator();
+    	        Iterator<List> it = alarmed.iterator();
     	        while(it.hasNext()) {
-    	            Seat s = it.next();
+    	            Seat s = (Seat)it.next().get(0);
     	            if (current - s.timeframe > CACHE_CLEAR * 60 * 60 * 1000)
     	                it.remove();
     	        }
